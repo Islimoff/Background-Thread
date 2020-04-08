@@ -5,9 +5,14 @@ import android.util.Log;
 public class TestRunnable implements Runnable {
 
     private int times;
+    private volatile boolean stopThread = false;
 
-    public TestRunnable(int times){
-        this.times=times;
+    public TestRunnable(int times) {
+        this.times = times;
+    }
+
+    public void finish() {
+        stopThread = true;
     }
 
 
@@ -15,6 +20,7 @@ public class TestRunnable implements Runnable {
     public void run() {
         int count = 0;
         while (count != 10) {
+            if (stopThread) return;
             Log.d("TAG", "startThread" + count);
             count++;
             try {
