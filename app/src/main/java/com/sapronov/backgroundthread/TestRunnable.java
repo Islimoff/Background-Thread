@@ -1,14 +1,27 @@
 package com.sapronov.backgroundthread;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 public class TestRunnable implements Runnable {
 
     private int times;
     private volatile boolean stopThread = false;
+    private TextView textView;
+    private ImageView imageView;
 
-    public TestRunnable(int times) {
+    public TestRunnable(int times, TextView textView, ImageView imageView) {
         this.times = times;
+        this.textView = textView;
+        this.imageView=imageView;
     }
 
     public void finish() {
@@ -19,8 +32,23 @@ public class TestRunnable implements Runnable {
     @Override
     public void run() {
         int count = 0;
-        while (count != 10) {
+        final Bitmap bitmap=getBitmapFromURL("https://avatars.mds.yandex.net/get-zen_doc/235990/pub_5cf83147b854e100b048c13b_5cf84fe0051e5a00aef89f91/scale_1200");
+        while (count != times) {
             if (stopThread) return;
+            if (count==4){
+                textView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                            textView.setText("50%");
+                    }
+                });
+                imageView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        imageView.setImageBitmap(bitmap);
+                    }
+                });
+            }
             Log.d("TAG", "startThread" + count);
             count++;
             try {
@@ -28,6 +56,21 @@ public class TestRunnable implements Runnable {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    public static Bitmap getBitmapFromURL(String src) {
+        try {
+            URL url = new URL(src);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoInput(true);
+            connection.connect();
+            InputStream input = connection.getInputStream();
+            Bitmap myBitmap = BitmapFactory.decodeStream(input);
+            return myBitmap;
+        } catch (IOException e) {
+            // Log exception
+            return null;
         }
     }
 }
