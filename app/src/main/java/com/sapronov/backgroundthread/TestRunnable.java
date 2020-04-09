@@ -32,7 +32,7 @@ public class TestRunnable implements Runnable {
     @Override
     public void run() {
         int count = 0;
-        final Bitmap bitmap=getBitmapFromURL("https://avatars.mds.yandex.net/get-zen_doc/235990/pub_5cf83147b854e100b048c13b_5cf84fe0051e5a00aef89f91/scale_1200");
+        final Bitmap bitmap=getBitmapFromURL("http://image10.bizrate-images.com/resize?sq=60&uid=2216744464");
         while (count != times) {
             if (stopThread) return;
             if (count==4){
