@@ -32,7 +32,7 @@ public class TestRunnable implements Runnable {
     @Override
     public void run() {
         int count = 0;
-        final Bitmap bitmap=getBitmapFromURL("http://image10.bizrate-images.com/resize?sq=60&uid=2216744464");
+        final Bitmap bitmap=getBitmapFromURL("https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcTADH4lfmT5JHc-3PDAQ22xMvaEmiAMXnRjyv2UFwLp9uLY7vU4&usqp=CAU");
         while (count != times) {
             if (stopThread) return;
             if (count==4){
@@ -66,8 +66,9 @@ public class TestRunnable implements Runnable {
             connection.setDoInput(true);
             connection.connect();
             InputStream input = connection.getInputStream();
-            Bitmap myBitmap = BitmapFactory.decodeStream(input);
-            return myBitmap;
+            Bitmap bitmap = BitmapFactory.decodeStream(input);
+            Bitmap result=Bitmap.createScaledBitmap(bitmap,200,200,false);
+            return result;
         } catch (IOException e) {
             // Log exception
             return null;

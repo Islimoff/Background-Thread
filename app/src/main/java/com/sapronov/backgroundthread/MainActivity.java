@@ -34,12 +34,12 @@ public class MainActivity extends AppCompatActivity {
 
     public void startThread(View view) {
         new loadImage((ImageView) findViewById(R.id.imageView))
-                .execute("http://image10.bizrate-images.com/resize?sq=60&uid=2216744464");
-//        if (!isActive) {
-//            runnable = new TestRunnable(10,textView,imageView);
-//            new Thread(runnable).start();
-//            isActive = true;
-//        }
+                .execute("https://avatars.mds.yandex.net/get-zen_doc/235990/pub_5cf83147b854e100b048c13b_5cf84fe0051e5a00aef89f91/scale_1200");
+        if (!isActive) {
+            runnable = new TestRunnable(10,textView,imageView);
+            new Thread(runnable).start();
+            isActive = true;
+        }
     }
 
     public void stopThread(View view) {
@@ -68,7 +68,8 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("Error", e.getMessage());
                 e.printStackTrace();
             }
-            return bitmap;
+            Bitmap result=Bitmap.createScaledBitmap(bitmap,200,200,false);
+            return result;
         }
 
         protected void onPostExecute(Bitmap result) {
