@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.InputStream;
+import java.lang.ref.WeakReference;
 import java.net.URL;
 
 import static android.os.AsyncTask.execute;
@@ -23,20 +24,27 @@ public class MainActivity extends AppCompatActivity {
     private boolean isActive = false;
     private TextView textView;
     private ImageView imageView;
+    private LoadImage loadImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        textView=findViewById(R.id.textView);
-        imageView=findViewById(R.id.imageView);
+        textView = findViewById(R.id.textView);
+        imageView = findViewById(R.id.imageView);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        loadImage = null;
     }
 
     public void startThread(View view) {
-        new loadImage((ImageView) findViewById(R.id.imageView))
-                .execute("https://avatars.mds.yandex.net/get-zen_doc/235990/pub_5cf83147b854e100b048c13b_5cf84fe0051e5a00aef89f91/scale_1200");
+        LoadImage loadImage = (LoadImage) new LoadImage(this)
+                .execute("https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcT1BrG_WY1G3LRs0y56amxaLmJ03JF23w77uEOPH6tngcVe-kj6&usqp=CAU");
         if (!isActive) {
-            runnable = new TestRunnable(10,textView,imageView);
+            runnable = new TestRunnable(10, textView, imageView);
             new Thread(runnable).start();
             isActive = true;
         }
@@ -48,17 +56,20 @@ public class MainActivity extends AppCompatActivity {
         isActive = false;
     }
 
+    static class LoadImage extends AsyncTask<String, Void, Bitmap> {
 
-    static class loadImage extends AsyncTask<String,Void, Bitmap>{
+        private WeakReference<MainActivity> weakReference;
 
-        ImageView imageView;
-
-        public loadImage(ImageView imageView) {
-            this.imageView = imageView;
+        public LoadImage(MainActivity activity) {
+            this.weakReference = new WeakReference<>(activity);
         }
 
         @Override
         protected Bitmap doInBackground(String... strings) {
+            MainActivity activity = weakReference.get();
+            if (activity == null || activity.isFinishing()) {
+                return null;
+            }
             String url = strings[0];
             Bitmap bitmap = null;
             try {
@@ -68,12 +79,16 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("Error", e.getMessage());
                 e.printStackTrace();
             }
-            Bitmap result=Bitmap.createScaledBitmap(bitmap,200,200,false);
+            Bitmap result = Bitmap.createScaledBitmap(bitmap, 200, 200, false);
             return result;
         }
 
         protected void onPostExecute(Bitmap result) {
-            imageView.setImageBitmap(result);
+            MainActivity activity = weakReference.get();
+            if (activity == null || activity.isFinishing()) {
+                return;
+            }
+            activity.imageView.setImageBitmap(result);
         }
     }
 }
